@@ -6,20 +6,7 @@
 //
 // Firebase konzol → Projekt beállításai → "Your apps" → Web app → a
 // firebaseConfig objektum pont ide másolandó.
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDi2-R1L0ie9WDoCld05A1V01YWkQcoQK0",
-  authDomain: "jetmap-98897.firebaseapp.com",
-  projectId: "jetmap-98897",
-  storageBucket: "jetmap-98897.firebasestorage.app",
-  messagingSenderId: "647856848354",
-  appId: "1:647856848354:web:0237df0e56893c60f68dbb"
-};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -35,13 +22,19 @@ import {
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "IDE_JÖN_AZ_API_KEY",
-  authDomain: "IDE_JÖN.firebaseapp.com",
-  projectId: "IDE_JÖN_A_PROJECT_ID",
-  storageBucket: "IDE_JÖN.appspot.com",
-  messagingSenderId: "IDE_JÖN",
-  appId: "IDE_JÖN_AZ_APP_ID",
+  apiKey: "AIzaSyDi2-R1L0ie9WDoCld05A1V01YWkQcoQK0",
+  authDomain: "jetmap-98897.firebaseapp.com",
+  projectId: "jetmap-98897",
+  storageBucket: "jetmap-98897.firebasestorage.app",
+  messagingSenderId: "647856848354",
+  appId: "1:647856848354:web:0237df0e56893c60f68dbb"
 };
 
 export const firebaseApp = initializeApp(firebaseConfig);
