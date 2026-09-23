@@ -1,0 +1,52 @@
+rules_version = '2';
+
+// Biztonsági szabályok a RejtekRádárhoz.
+// Másold be teljes egészében a Firebase konzol → Firestore Database →
+// Szabályok (Rules) fülre, majd Publikálás (Publish).
+//
+// Logika:
+//  - Csak névtelenül bejelentkezett (anonymous auth) kliens olvashat/írhat.
+//  - Egy lobbyt csak a házigazda módosíthat (státusz, beállítások, bujkáló).
+//  - Egy játékos csak a saját players/{uid} dokumentumát írhatja — KIVÉVE a
+//    "role" mezőt, amit a házigazda is beállíthat (szerepkiosztáskor).
+//  - Egy hints/{hintId} kérést bárki létrehozhat a saját nevében, de a
+//    választ (answer/status) kizárólag az aktuális bujkáló írhatja —
+//    így a bujkáló pozíciója sosem szivároghat ki máshogy, mint az ő
+//    saját, szándékos válaszán keresztül.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /lobbies/{code} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+                    && request.resource.data.hostUid == request.auth.uid;
+      allow update: if request.auth != null
+                    && resource.data.hostUid == request.auth.uid;
+      allow delete: if false;
+
+      match /players/{uid} {
+        allow read: if request.auth != null;
+        allow create: if request.auth != null && request.auth.uid == uid;
+        allow update: if request.auth != null && (
+          request.auth.uid == uid ||
+          (
+            get(/databases/$(database)/documents/lobbies/$(code)).data.hostUid == request.auth.uid &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role'])
+          )
+        );
+        allow delete: if request.auth != null && request.auth.uid == uid;
+      }
+
+      match /hints/{hintId} {
+        allow read: if request.auth != null;
+        allow create: if request.auth != null
+                      && request.resource.data.requestedBy == request.auth.uid
+                      && request.resource.data.status == 'pending';
+        allow update: if request.auth != null
+                      && get(/databases/$(database)/documents/lobbies/$(code)).data.hiderUid == request.auth.uid;
+        allow delete: if false;
+      }
+    }
+  }
+}

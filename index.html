@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>RejtekRádár — Jet Lag Bújócska</title>
+<meta name="description" content="Digitális terepasztal a Jet Lag: Bújócska társasjáték otthoni verziójához." />
+<link rel="icon" href="data:,">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap"
+  rel="stylesheet"
+/>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="app">
+
+  <!-- ============================== KEZDŐKÉPERNYŐ ============================== -->
+  <section id="screen-home" class="screen active">
+    <div class="home-wrap">
+      <button id="logo-tap" class="logo" type="button">
+        <span class="logo__icon">📡</span>
+        <span class="logo__text">RejtekRádár</span>
+      </button>
+      <p class="subtitle">Digitális terepasztal a Jet Lag: Bújócska otthoni verziójához</p>
+
+      <div class="card-grid">
+        <form id="form-create" class="card">
+          <h2>Új parti</h2>
+          <label>
+            A neved
+            <input type="text" id="create-name" placeholder="pl. Bálint" maxlength="24" required />
+          </label>
+          <button type="submit" class="btn btn--primary">Parti létrehozása</button>
+        </form>
+
+        <form id="form-join" class="card">
+          <h2>Csatlakozás</h2>
+          <label>
+            A neved
+            <input type="text" id="join-name" placeholder="pl. Réka" maxlength="24" required />
+          </label>
+          <label>
+            Lobbykód
+            <input
+              type="text"
+              id="join-code"
+              placeholder="pl. K7X4M"
+              maxlength="5"
+              autocapitalize="characters"
+              required
+            />
+          </label>
+          <button type="submit" class="btn btn--secondary">Csatlakozom</button>
+        </form>
+      </div>
+
+      <p id="home-status" class="status-text"></p>
+
+      <details class="how-it-works">
+        <summary>Hogyan működik?</summary>
+        <ol>
+          <li>Az egyik játékos létrehoz egy partit, a többiek a kóddal csatlakoznak.</li>
+          <li>A házigazda kiválasztja, ki bújik — a többiek automatikusan keresők lesznek.</li>
+          <li>A keresők folyamatosan megosztják a helyzetüket — ezt csak a bujkáló látja.</li>
+          <li>
+            A keresők segítséget kérhetnek (rádár, hőmérő, mérés, egyezés) — a választ a bujkáló
+            telefonja számolja ki a valódi helyzetéből, a bujkáló pedig egy gombnyomással
+            elküldi. A bujkáló pontos pozíciója soha nem kerül fel a szerverre.
+          </li>
+        </ol>
+      </details>
+    </div>
+  </section>
+
+  <!-- ================================ LOBBY ==================================== -->
+  <section id="screen-lobby" class="screen">
+    <div class="topbar">
+      <button id="lobby-leave" class="btn btn--ghost btn--small" type="button">← Kilépés</button>
+      <span class="topbar__title">Váróterem</span>
+      <span class="spacer"></span>
+    </div>
+
+    <div class="lobby-wrap">
+      <button id="lobby-code-copy" class="lobby-code" type="button" title="Kód másolása">
+        <span id="lobby-code-text">-----</span>
+        <span class="lobby-code__hint">koppints a másoláshoz</span>
+      </button>
+
+      <h3 class="section-title">Játékosok</h3>
+      <ul id="player-list" class="player-list"></ul>
+
+      <div id="host-controls" class="host-controls hidden">
+        <h3 class="section-title">Rádár beállítás</h3>
+        <label>
+          Játékterület mérete
+          <select id="radar-preset-select">
+            <option value="kicsi">Kicsi (városrész)</option>
+            <option value="kozepes">Közepes (város)</option>
+            <option value="nagy">Nagy (régió / ország)</option>
+          </select>
+        </label>
+        <button id="start-game-btn" class="btn btn--primary" type="button" disabled>
+          Indítás
+        </button>
+        <p class="hint-text">Válaszd ki, ki bújik a listában, mielőtt indítasz.</p>
+      </div>
+
+      <p id="waiting-text" class="status-text hidden">Várakozás, hogy a házigazda elindítsa a kört…</p>
+    </div>
+  </section>
+
+  <!-- ================================= JÁTÉK ==================================== -->
+  <section id="screen-game" class="screen">
+    <div class="topbar">
+      <span id="role-badge" class="role-badge">—</span>
+      <span id="round-timer" class="round-timer">00:00</span>
+      <button id="end-round-btn" class="btn btn--ghost btn--small hidden" type="button">Kör vége</button>
+      <button id="game-leave" class="btn btn--ghost btn--small" type="button">Kilépés</button>
+    </div>
+
+    <div id="map" class="map"></div>
+
+    <!-- BUJKÁLÓ NÉZET -->
+    <div id="hider-panel" class="game-panel hidden">
+      <h3 class="section-title">Beérkezett kérések</h3>
+      <div id="hider-hint-feed" class="hint-feed">
+        <p class="empty-text">Egyelőre nincs kérés — a keresők innen fognak segítséget kérni.</p>
+      </div>
+    </div>
+
+    <!-- KERESŐ NÉZET -->
+    <div id="seeker-panel" class="game-panel hidden">
+      <div class="hint-request-box">
+        <h3 class="section-title">Segítség kérése</h3>
+        <label>
+          Típus
+          <select id="hint-type-select">
+            <option value="radar">Rádár</option>
+            <option value="thermometer">Hőmérő</option>
+            <option value="measuring">Mérés</option>
+            <option value="matching">Egyezés</option>
+            <option value="custom">Egyéni kérdés</option>
+          </select>
+        </label>
+
+        <div id="hint-fields"></div>
+
+        <button id="hint-submit-btn" class="btn btn--primary" type="button">Kérés elküldése</button>
+      </div>
+
+      <h3 class="section-title">Eddigi segítségek</h3>
+      <div id="seeker-hint-feed" class="hint-feed">
+        <p class="empty-text">Még nem kértetek segítséget.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ FEJLESZTŐI PANEL ============================== -->
+  <div id="dev-panel" class="dev-panel hidden">
+    <div class="dev-panel__inner">
+      <h3>Fejlesztői panel</h3>
+      <p class="hint-text">Szimulált pozíció beállítása teszteléshez (több böngészőfülben).</p>
+      <label>Szélesség (lat) <input type="number" id="dev-lat" step="0.0001" /></label>
+      <label>Hosszúság (lng) <input type="number" id="dev-lng" step="0.0001" /></label>
+      <div class="dev-panel__actions">
+        <button id="dev-apply" class="btn btn--secondary btn--small" type="button">Alkalmaz</button>
+        <button id="dev-clear" class="btn btn--ghost btn--small" type="button">Valódi GPS</button>
+        <button id="dev-close" class="btn btn--ghost btn--small" type="button">Bezár</button>
+      </div>
+      <p id="dev-current-pos" class="hint-text"></p>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
