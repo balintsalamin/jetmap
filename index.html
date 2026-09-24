@@ -95,13 +95,13 @@
       <ul id="player-list" class="player-list"></ul>
 
       <div id="host-controls" class="host-controls hidden">
-        <h3 class="section-title">Rádár beállítás</h3>
+        <h3 class="section-title">Játék mérete</h3>
         <label>
-          Játékterület mérete
-          <select id="radar-preset-select">
-            <option value="kicsi">Kicsi (városrész)</option>
-            <option value="kozepes">Közepes (város)</option>
-            <option value="nagy">Nagy (régió / ország)</option>
+          Ez szabja meg, mely Hőmérő/Tentakel/Fotó kategóriák érhetők el
+          <select id="game-size-select">
+            <option value="kicsi">Kicsi</option>
+            <option value="kozepes">Közepes</option>
+            <option value="nagy">Nagy</option>
           </select>
         </label>
         <button id="start-game-btn" class="btn btn--primary" type="button" disabled>
@@ -144,6 +144,8 @@
             <option value="thermometer">Hőmérő</option>
             <option value="measuring">Mérés</option>
             <option value="matching">Egyezés</option>
+            <option value="tentacle">Tentakel</option>
+            <option value="photo">Fotó</option>
             <option value="custom">Egyéni kérdés</option>
           </select>
         </label>

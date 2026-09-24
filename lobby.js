@@ -32,7 +32,7 @@ function randomCode() {
 }
 
 export const DEFAULT_SETTINGS = {
-  radarPreset: "kozepes", // 'kicsi' | 'kozepes' | 'nagy' — lásd hints.js
+  gameSize: "kozepes", // 'kicsi' | 'kozepes' | 'nagy' — a Hőmérő/Tentakel/Fotó kategóriák elérhetőségét szabja (lásd geo.js)
 };
 
 /** Új parti létrehozása. Visszaadja a lobbykódot. */

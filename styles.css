@@ -281,7 +281,9 @@ textarea { resize: vertical; font-family: var(--font-body); }
 .hint-card__answer { font-size: 0.95rem; font-weight: 600; margin-top: 4px; }
 .hint-card__waiting { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
 .hint-card__actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; }
-.custom-answer-input { width: 100%; margin: 8px 0; }
+.custom-answer-input, .manual-answer-input, .altitude-answer-input { width: 100%; margin: 8px 0; }
+.photo-answer-input { width: 100%; margin: 8px 0; color: var(--text-dim); }
+.photo-answer-preview, .hint-card__photo { width: 100%; border-radius: var(--radius-s); margin: 8px 0; display: block; }
 
 /* ---------------------------------------------------------- Point picker */
 
