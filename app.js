@@ -226,6 +226,7 @@ function onLobbyChange(lobby) {
   document.getElementById("waiting-text").classList.toggle("hidden", state.isHost);
   const sel = document.getElementById("game-size-select");
   if (lobby.settings?.gameSize) sel.value = lobby.settings.gameSize;
+  renderPlayerList(currentPlayers, lobby);
   updateStartButtonEnabled();
 
   if (lobby.status === "playing" && !gameScreenActive) {
